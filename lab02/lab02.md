@@ -58,59 +58,40 @@
 
 #### Демонстрация работы
 1. `POST /product` 
+  - Все товары до:
+    <img src="images/post1.png" width=500 />
 
-   <div>
-     Все товары до:
+  - Добавление:
+    <img src="images/post2.png" width=500 />
 
-     <img src="images/post1.png" width=500 />
+  - Все товары после:
+    <img src="images/post3.png" width=500 />
 
-     Добавление:
-     
-     <img src="images/post2.png" width=500 />
-
-     Все товары после:
-
-     <img src="images/post3.png" width=500 />
-   </div>
    
 2. `GET /product/{product_id}`
-  
    <img src="images/getbyid.png" width=500 />
 
 3. `PUT /product/{product_id}`
-   
-   <div>
-     Все товары до:
+  - Все товары до:
+    <img src="images/post3.png" width=500 />
 
-     <img src="images/post3.png" width=500 />
+  - Обновление:
+    <img src="images/put2.png" width=500 />
 
-     Обновление:
-
-     <img src="images/put2.png" width=500 />
-
-     Все товары после:
-
-     <img src="images/put3.png" width=500 />
-   </div>
+  - Все товары после:
+    <img src="images/put3.png" width=500 />
 
 4. `DELETE /product/{product_id}`
-   
-   <div>
-     Все товары до:
+  - Все товары до:
+    <img src="images/put3.png" width=500 />
 
-     <img src="images/put3.png" width=500 />
+  - Удаление:
+    <img src="images/delete2.png" width=500 />
 
-     Удаление:
-
-     <img src="images/delete2.png" width=500 />
-
-     Все товары после:
-
-     <img src="images/delete3.png" width=500 />
-   </div>
+  - Все товары после:
+    <img src="images/delete3.png" width=500 />
 
 5. `GET /products`
-
    <img src="images/getall.png" width=500 />
 
 ### Задание В (4 балла)
@@ -135,18 +116,16 @@
 
 #### Демонстрация работы
 1. `POST product/{product_id}/image`
-   
-   До добавления иконки продукта:
-   <img src="images/posticon1.png" width=500 />
+  - До добавления иконки продукта:
+    <img src="images/posticon1.png" width=500 />
 
-   Добавление иконки:
-   <img src="images/posticon2.png" width=500 />
+  - Добавление иконки:
+    <img src="images/posticon2.png" width=500 />
 
-   После добавления иконки продукта:
-   <img src="images/posticon3.png" width=500 />
+  - После добавления иконки продукта:
+    <img src="images/posticon3.png" width=500 />
 
 2. `GET product/{product_id}/image`
-   
    <img src="images/posticon3.png" width=500 />
 
 ---
@@ -186,4 +165,6 @@ todo
 
 #### Решение
 todo
+
+
 
