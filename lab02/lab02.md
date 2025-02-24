@@ -58,40 +58,40 @@
 
 #### Демонстрация работы
 1. `POST /product` 
-  - Все товары до:
+  - Все товары до:</br>
     <img src="images/post1.png" width=500 />
 
-  - Добавление:
+  - Добавление:</br>
     <img src="images/post2.png" width=500 />
 
-  - Все товары после:
+  - Все товары после:</br>
     <img src="images/post3.png" width=500 />
 
    
-2. `GET /product/{product_id}`
+2. `GET /product/{product_id}`</br>
    <img src="images/getbyid.png" width=500 />
 
 3. `PUT /product/{product_id}`
-  - Все товары до:
+  - Все товары до:</br>
     <img src="images/post3.png" width=500 />
 
-  - Обновление:
+  - Обновление:</br>
     <img src="images/put2.png" width=500 />
 
-  - Все товары после:
+  - Все товары после:</br>
     <img src="images/put3.png" width=500 />
 
 4. `DELETE /product/{product_id}`
-  - Все товары до:
+  - Все товары до:</br>
     <img src="images/put3.png" width=500 />
 
-  - Удаление:
+  - Удаление:</br>
     <img src="images/delete2.png" width=500 />
 
-  - Все товары после:
+  - Все товары после:</br>
     <img src="images/delete3.png" width=500 />
 
-5. `GET /products`
+5. `GET /products`</br>
    <img src="images/getall.png" width=500 />
 
 ### Задание В (4 балла)
@@ -116,16 +116,16 @@
 
 #### Демонстрация работы
 1. `POST product/{product_id}/image`
-  - До добавления иконки продукта:
+  - До добавления иконки продукта:</br>
     <img src="images/posticon1.png" width=500 />
 
-  - Добавление иконки:
+  - Добавление иконки:</br>
     <img src="images/posticon2.png" width=500 />
 
-  - После добавления иконки продукта:
+  - После добавления иконки продукта:</br>
     <img src="images/posticon3.png" width=500 />
 
-2. `GET product/{product_id}/image`
+2. `GET product/{product_id}/image`</br>
    <img src="images/posticon3.png" width=500 />
 
 ---
