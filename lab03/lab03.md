@@ -27,6 +27,18 @@
 
 #### Демонстрация работы
 todo
+Существующий файл:
+![](images/11.png)
+
+Несуществующий файл:
+![](images/12.png)
+```bash
+2025-03-18 15:08:26 - INFO - [127.0.0.1:40246] Connection estabilished2025-03-18 15:08:26 - INFO - Waiting for connection... Available slots: 0      
+2025-03-18 15:08:26 - INFO - Handling connection from 127.0.0.1:40246
+2025-03-18 15:08:48 - INFO - [127.0.0.1:40246] Request: GET /
+2025-03-18 15:08:48 - WARNING - File not found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data
+2025-03-18 15:08:48 - INFO - [127.0.0.1:40246] Connection closed
+```
 
 ### Б. Многопоточный веб-сервер (2 балла)
 Реализуйте многопоточный сервер, который мог бы обслуживать несколько запросов

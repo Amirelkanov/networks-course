@@ -18,11 +18,12 @@ logger = logging.getLogger(__name__)
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Server for lab03')
     parser.add_argument('--server_port', type=int, default=12345, help='Port to listen on')
-    parser.add_argument('--concurrency_level', type=int, default=5, help='Maximum number of concurrent connections')
+    parser.add_argument('--concurrency_level', type=int, default=1, help='Maximum number of concurrent connections')
     parser.add_argument('--log_level', type=str, default='INFO', 
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help='Set the logging level')
     return parser.parse_args()
+
 
 def get_content_type(file_extension):
     content_types = {
@@ -35,24 +36,53 @@ def get_content_type(file_extension):
         '.png': 'image/png',
         '.gif': 'image/gif',
         '.txt': 'text/plain',
+        '.json': 'application/json',
+        '.pdf': 'application/pdf',
+        '.xml': 'application/xml',
+        '.svg': 'image/svg+xml',
     }
     return content_types.get(file_extension, 'application/octet-stream')
 
 
 def get_response(request: str):
-    filename = request.split()[1][1:]
-    filepath = Path.cwd() / DATA_DIR / filename
-    if Path.exists(filepath) and Path.is_file(filepath):
-        with open(filepath, 'rb') as file:
-            content = file.read()
-        header = f"HTTP/1.1 200 OK\r\nContent-Type: {get_content_type(filepath.suffix)}\r\nContent-Length: {len(content)}\r\n\r\n"
-        response = header.encode() + content
-        logger.debug(f"File found: {filepath}, size: {len(content)} bytes")
-    else:
-        header = f"HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n"
-        response = header.encode()
-        logger.warning(f"File not found: {filepath}")
-    return response
+    try:
+        request_parts = request.split()
+        if len(request_parts) < 2:
+            logger.warning("Malformed request received")
+            return build_error_response(400, "Bad Request")
+            
+        method, path = request_parts[0], request_parts[1]
+        
+        if method != "GET":
+            return build_error_response(501, "Not Implemented")
+            
+        filename = path[1:] if path.startswith('/') else path
+        filepath = Path.cwd() / DATA_DIR / filename
+        if Path.exists(filepath) and Path.is_file(filepath):
+            with open(filepath, 'rb') as file:
+                content = file.read()
+            header = (f"HTTP/1.1 200 OK\r\n"
+                     f"Content-Type: {get_content_type(filepath.suffix)}\r\n"
+                     f"Content-Length: {len(content)}\r\n"
+                     f"Connection: close\r\n\r\n")
+            response = header.encode() + content
+            logger.debug(f"File found: {filepath}, size: {len(content)} bytes")
+            return response
+        else:
+            return build_error_response(404, "Not Found")
+    except Exception as e:
+        logger.error(f"Error processing request: {e}", exc_info=True)
+        return build_error_response(500, "Internal Server Error")
+
+
+def build_error_response(status_code, message):
+    content = f"<html><body><h1>{status_code} {message}</h1></body></html>".encode()
+    header = (f"HTTP/1.1 {status_code} {message}\r\n"
+             f"Content-Type: text/html\r\n"
+             f"Content-Length: {len(content)}\r\n"
+             f"Connection: close\r\n\r\n")
+    return header.encode() + content
+
 
 def handle_request(connection_socket: socket.socket):
     try:
@@ -60,23 +90,16 @@ def handle_request(connection_socket: socket.socket):
         if not request:
             logger.debug("Empty request received")
             return
-            
-        request_parts = request.split()
-        if len(request_parts) < 2:
-            logger.warning("Malformed request received")
-            return
-            
-        addr = connection_socket.getpeername()
-        logger.info(f"[{addr[0]}:{addr[1]}] Request: {request_parts[0]} {request_parts[1]}")
-        
         connection_socket.sendall(get_response(request))
+    except socket.timeout:
+        logger.warning("Request timed out")
     except Exception as e:
         logger.error(f"Error handling request: {e}", exc_info=True)
 
 def client_handler(connection_socket, addr, connection_semaphore):
     try:
-        connection_socket.settimeout(30)
-        logger.info(f"Handling connection from {addr[0]}:{addr[1]}")
+        # connection_socket.settimeout(5)
+        logger.info(f"[{addr[0]}:{addr[1]}] Handling connection...")
         
         try:
             handle_request(connection_socket)
@@ -95,32 +118,41 @@ def run_server(port: int, concurrency_level: int):
     try:
         connection_semaphore = threading.Semaphore(concurrency_level)
         
-        serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serverSocket.bind(('localhost', port))
-        serverSocket.listen(concurrency_level)
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind(('', port))  
+        server_socket.listen(concurrency_level)
         
-        logger.info(f"Server started on port: {port}")
+        logger.info(f"Server started on port {port} with concurrency level {concurrency_level}")
+        logger.info(f"Serving files from directory: {Path.cwd() / DATA_DIR}")
+        
         while True:
-            logger.info(f"Waiting for connection... Available slots: {connection_semaphore._value}")
-            connection_semaphore.acquire() # Ждем, пока семафор не освободит слот
-
-            connectionSocket, addr = serverSocket.accept()
-            logger.info(f"[{addr[0]}:{addr[1]}] Connection estabilished")
-
-            client_thread = threading.Thread(
-                target=client_handler,
-                args=(connectionSocket, addr, connection_semaphore)
-            )
-            client_thread.daemon = True
-            client_thread.start()
+            try:
+                connection_socket, addr = server_socket.accept()
+                logger.info(f"[{addr[0]}:{addr[1]}] Connection established")
+                connection_semaphore.acquire()
+                
+                client_thread = threading.Thread(
+                    target=client_handler,
+                    args=(connection_socket, addr, connection_semaphore)
+                )
+                client_thread.daemon = True
+                client_thread.start()
+                
+            except Exception as e:
+                logger.error(f"Error accepting connection: {e}", exc_info=True)
+                
     except KeyboardInterrupt:
         logger.info("Server stopped by user: KeyboardInterrupt")
     except Exception as e:
         logger.critical(f"Server error: {e}", exc_info=True)
     finally:
-        serverSocket.close()
-        logger.info("Server socket closed")
+        try:
+            server_socket.close()
+            logger.info("Server socket closed")
+        except:
+            pass
+
 
 if __name__ == "__main__":
     args = parse_arguments()
