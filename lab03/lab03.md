@@ -26,21 +26,33 @@
 ```
 
 #### Демонстрация работы
-todo
+```
+> python src/server.py --log_level DEBUG
+Running with arguments: Namespace(server_port=12345, concurrency_level=1, log_level='DEBUG')
+2025-03-18 16:11:28 - INFO - Server started on port 12345 with concurrency level 1
+2025-03-18 16:11:28 - INFO - Serving files from directory: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data
+```
 Существующий файл:
+```
+2025-03-18 16:11:50 - INFO - [127.0.0.1:27823] Connection established
+2025-03-18 16:11:50 - INFO - [127.0.0.1:27823] Handling connection...
+2025-03-18 16:11:50 - DEBUG - File found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data\index.html, size: 161 bytes
+2025-03-18 16:11:50 - INFO - [127.0.0.1:27823] Request has been processed. Closing connection...  
+2025-03-18 16:11:50 - INFO - [127.0.0.1:27823] Connection closed
+```
 ![](images/11.png)
 
 Несуществующий файл:
 ![](images/12.png)
 ```bash
-2025-03-18 15:08:26 - INFO - [127.0.0.1:40246] Connection estabilished2025-03-18 15:08:26 - INFO - Waiting for connection... Available slots: 0      
-2025-03-18 15:08:26 - INFO - Handling connection from 127.0.0.1:40246
-2025-03-18 15:08:48 - INFO - [127.0.0.1:40246] Request: GET /
-2025-03-18 15:08:48 - WARNING - File not found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data
-2025-03-18 15:08:48 - INFO - [127.0.0.1:40246] Connection closed
+2025-03-18 16:12:29 - INFO - [127.0.0.1:28313] Connection established
+2025-03-18 16:12:29 - INFO - [127.0.0.1:28313] Handling connection...
+2025-03-18 16:12:29 - DEBUG - File not found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data\unknown.html
+2025-03-18 16:12:29 - INFO - [127.0.0.1:28313] Request has been processed. Closing connection...  
+2025-03-18 16:12:29 - INFO - [127.0.0.1:28313] Connection closed
 ```
 
-### Б. Многопоточный веб-сервер (2 балла)
+### Б. Многопоточный веб-сервер (2 балла) - DONE
 Реализуйте многопоточный сервер, который мог бы обслуживать несколько запросов
 одновременно. Сначала создайте основной поток (процесс), в котором ваш модифицированный
 сервер ожидает клиентов на определенном фиксированном порту. При получении запроса на
@@ -62,9 +74,28 @@ TCP-соединение от клиента он будет устанавли�
 ```
 
 #### Демонстрация работы
-todo
+![](images/31.png)
 
-### Г. Ограничение потоков сервера (3 балла)
+Что в это время говорит сервер:
+```
+2025-03-18 16:16:29 - INFO - [127.0.0.1:31362] Connection established
+2025-03-18 16:16:29 - INFO - [127.0.0.1:31362] Handling connection...
+2025-03-18 16:16:29 - DEBUG - File not found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data\unknown_filename
+2025-03-18 16:16:29 - INFO - [127.0.0.1:31362] Request has been processed. Closing connection...
+2025-03-18 16:16:29 - INFO - [127.0.0.1:31362] Connection closed
+2025-03-18 16:16:32 - INFO - [127.0.0.1:31391] Connection established
+2025-03-18 16:16:32 - INFO - [127.0.0.1:31391] Handling connection...
+2025-03-18 16:16:32 - DEBUG - File found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data\index.html, size: 161 bytes
+2025-03-18 16:16:32 - INFO - [127.0.0.1:31391] Request has been processed. Closing connection...
+2025-03-18 16:16:32 - INFO - [127.0.0.1:31391] Connection closed
+2025-03-18 16:16:35 - INFO - [127.0.0.1:31428] Connection established
+2025-03-18 16:16:35 - INFO - [127.0.0.1:31428] Handling connection...
+2025-03-18 16:16:35 - DEBUG - File found: C:\Users\AmEl\PycharmProjects\networks-course\lab03\data\1.txt, size: 930 bytes
+2025-03-18 16:16:35 - INFO - [127.0.0.1:31428] Request has been processed. Closing connection...
+2025-03-18 16:16:35 - INFO - [127.0.0.1:31428] Connection closed
+```
+
+### Г. Ограничение потоков сервера (3 балла) - DONE
 Пусть ресурсы вашего сервера ограничены и вы хотите контролировать максимальное количество
 потоков, с которыми может работать ваш многопоточный сервер одновременно. При запуске
 сервер получает целочисленное значение `concurrency_level` из командной строки. Если сервер 

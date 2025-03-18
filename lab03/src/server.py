@@ -69,6 +69,7 @@ def get_response(request: str):
             logger.debug(f"File found: {filepath}, size: {len(content)} bytes")
             return response
         else:
+            logger.debug(f"File not found: {filepath}")
             return build_error_response(404, "Not Found")
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)
@@ -103,6 +104,7 @@ def client_handler(connection_socket, addr, connection_semaphore):
         
         try:
             handle_request(connection_socket)
+            logger.info(f"[{addr[0]}:{addr[1]}] Request has been processed. Closing connection...")
         except Exception as e:
             logger.error(f"Error handling connection: {e}", exc_info=True)
         finally:
