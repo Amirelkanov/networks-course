@@ -1,8 +1,8 @@
-from pathlib import Path
 import socket
+import threading
 import argparse
 import logging
-from queue import Queue
+from pathlib import Path
 
 DATA_DIR = "data"
 BUF_SIZE = 8192
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Server for lab03')
     parser.add_argument('--server_port', type=int, default=12345, help='Port to listen on')
-    parser.add_argument('--concurrency_level', type=int, default=1, help='Maximum number of concurrent connections')
+    parser.add_argument('--concurrency_level', type=int, default=5, help='Maximum number of concurrent connections')
     parser.add_argument('--log_level', type=str, default='INFO', 
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help='Set the logging level')
@@ -53,8 +53,8 @@ def get_response(request: str):
         response = header.encode()
         logger.warning(f"File not found: {filepath}")
     return response
-    
-def handle_request(connection_socket: socket):
+
+def handle_request(connection_socket: socket.socket):
     try:
         request = connection_socket.recv(BUF_SIZE).decode('utf-8', errors='replace')
         if not request:
@@ -73,22 +73,49 @@ def handle_request(connection_socket: socket):
     except Exception as e:
         logger.error(f"Error handling request: {e}", exc_info=True)
 
+def client_handler(connection_socket, addr, connection_semaphore):
+    try:
+        connection_socket.settimeout(30)
+        logger.info(f"Handling connection from {addr[0]}:{addr[1]}")
+        
+        try:
+            handle_request(connection_socket)
+        except Exception as e:
+            logger.error(f"Error handling connection: {e}", exc_info=True)
+        finally:
+            logger.info(f"[{addr[0]}:{addr[1]}] Connection closed")
+            try:
+                connection_socket.close()
+            except:
+                pass
+    finally:
+        connection_semaphore.release()
+
 def run_server(port: int, concurrency_level: int):
     try:
+        connection_semaphore = threading.Semaphore(concurrency_level)
+        
         serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serverSocket.bind(('localhost', port))
         serverSocket.listen(concurrency_level)
         
         logger.info(f"Server started on port: {port}")
-        logger.info(f"Concurrency level: {concurrency_level}")
-
         while True:
-            logger.debug("Waiting for connection...")
+            logger.info(f"Waiting for connection... Available slots: {connection_semaphore._value}")
+            connection_semaphore.acquire() # Ждем, пока семафор не освободит слот
+
             connectionSocket, addr = serverSocket.accept()
-            logger.info(f"Established connection with {addr[0]}:{addr[1]}")
-            handle_request(connectionSocket)
-            logger.info(f"[{addr[0]}:{addr[1]}] Connection closed")
-            connectionSocket.close()
+            logger.info(f"[{addr[0]}:{addr[1]}] Connection estabilished")
+
+            client_thread = threading.Thread(
+                target=client_handler,
+                args=(connectionSocket, addr, connection_semaphore)
+            )
+            client_thread.daemon = True
+            client_thread.start()
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user: KeyboardInterrupt")
     except Exception as e:
         logger.critical(f"Server error: {e}", exc_info=True)
     finally:
@@ -97,7 +124,8 @@ def run_server(port: int, concurrency_level: int):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    
+    print(f"Running with arguments: {args}")
+
     numeric_level = getattr(logging, args.log_level.upper(), None)
     if isinstance(numeric_level, int):
         logger.setLevel(numeric_level)
