@@ -1,0 +1,2 @@
+DATA_DIR = "data"
+BUF_SIZE = 8192
