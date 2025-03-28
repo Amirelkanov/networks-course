@@ -1,7 +1,8 @@
-# Parse HTTP request data into headers and body.
+import hashlib
+import os
 from urllib.parse import urlparse
 
-from const import BUF_SIZE
+from const import CACHE_DIR
 
 
 def parse_http_request(request_data):
@@ -79,24 +80,8 @@ def build_remote_request(method, remote_path, version, header_lines, hostname, b
     return request_message.encode() + body
 
 
-def relay_response(remote_socket, connection_socket):
-    response_data = b""
-    response_code = "N/A"
-    headers_received = False
-
-    while True:
-        remote_data = remote_socket.recv(BUF_SIZE)
-        if not remote_data:
-            break
-
-        response_data += remote_data
-        connection_socket.sendall(remote_data)
-
-        # Extract response code from the first line if not done yet
-        if not headers_received and b"\r\n" in response_data:
-            headers_received = True
-            response_line = response_data.split(b"\r\n")[0].decode(errors="ignore")
-            status_parts = response_line.split()
-            response_code = status_parts[1] if len(status_parts) >= 2 else "N/A"
-
-    return response_code
+def get_cache_paths(url):
+    h = hashlib.md5(url.encode()).hexdigest()
+    meta_path = os.path.join(CACHE_DIR, f"{h}.meta")
+    content_path = os.path.join(CACHE_DIR, f"{h}.cache")
+    return meta_path, content_path

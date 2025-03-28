@@ -1,69 +1,22 @@
+import json
+import os
 import socket
 import threading
-import argparse
-import logging
-from const import BUF_SIZE
+from const import BUF_SIZE, CACHE_DIR
 from helpers import (
     build_remote_request,
     extract_target_info,
+    get_cache_paths,
     parse_http_request,
-    relay_response,
 )
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Proxy Server for Lab04")
-    parser.add_argument(
-        "--server_port", type=int, default=8888, help="Port to listen on"
-    )
-    parser.add_argument(
-        "--concurrency_level",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent connections",
-    )
-    parser.add_argument(
-        "--log_level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Set the logging level",
-    )
-    parser.add_argument(
-        "--log_file", type=str, default="proxy.log", help="Log file name"
-    )
-    return parser.parse_args()
-
-
-def init_logger(log_level, log_file):
-    logger = logging.getLogger(__name__)
-
-    formatter = logging.Formatter(
-        fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-
-    numeric_level = getattr(logging, log_level.upper(), None)
-    if isinstance(numeric_level, int):
-        logger.setLevel(numeric_level)
-    else:
-        logger.setLevel(logging.INFO)
-    return logger
+from setup import init_logger, parse_arguments
 
 
 def handle_request(connection_socket: socket.socket):
     remote_socket = None
 
     try:
-        # Read the complete request
+        # Read the complete client request.
         request_data = b""
         while True:
             chunk = connection_socket.recv(BUF_SIZE)
@@ -81,13 +34,8 @@ def handle_request(connection_socket: socket.socket):
             request_data
         )
 
-        if not header_lines:
+        if not header_lines or not method:
             logger.warning("Malformed request received")
-            connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
-            return
-
-        if not method:
-            logger.warning(f"Malformed request line")
             connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
 
@@ -111,6 +59,24 @@ def handle_request(connection_socket: socket.socket):
 
         logger.info(f"Proxying {method} request to {hostname}:{port}{remote_path}")
 
+        # For GET requests, check the cache
+        cache_meta = {}
+        meta_exists = False
+        if method.upper() == "GET":
+            meta_path, content_path = get_cache_paths(target)
+            if os.path.exists(meta_path) and os.path.exists(content_path):
+                meta_exists = True
+                with open(meta_path, "r") as f:
+                    cache_meta = json.load(f)
+
+                # Append conditional GET headers if available
+                if "Last-Modified" in cache_meta:
+                    header_lines.append(
+                        f"If-Modified-Since: {cache_meta['Last-Modified']}"
+                    )
+                if "Etag" in cache_meta:
+                    header_lines.append(f"If-None-Match: {cache_meta['Etag']}")
+
         final_request = build_remote_request(
             method, remote_path, version, header_lines, hostname, body
         )
@@ -122,7 +88,51 @@ def handle_request(connection_socket: socket.socket):
             remote_socket.connect((hostname, port))
             remote_socket.sendall(final_request)
 
-            response_code = relay_response(remote_socket, connection_socket)
+            response_data = b""
+            while True:
+                chunk = remote_socket.recv(BUF_SIZE)
+                if not chunk:
+                    break
+                response_data += chunk
+
+            response_lines = response_data.split(b"\r\n")
+            if response_lines:
+                status_line = response_lines[0].decode(errors="ignore")
+                status_parts = status_line.split()
+                response_code = status_parts[1] if len(status_parts) >= 2 else "N/A"
+            else:
+                response_code = "N/A"
+
+            # If we did a conditional GET and got a 304, serve the cached copy
+            if response_code == "304" and meta_exists:
+                logger.info(f"Serving {target} from cache (304 Not Modified)")
+                with open(content_path, "rb") as cache_file:
+                    cached_response = cache_file.read()
+                connection_socket.sendall(cached_response)
+            else:
+                # If everything's good, update the cache
+                if method.upper() == "GET" and response_code == "200":
+                    header_data, _, _ = response_data.partition(b"\r\n\r\n")
+                    headers = header_data.decode("utf-8", errors="replace").split(
+                        "\r\n"
+                    )
+                    new_meta = {}
+                    for header in headers:
+                        if header.lower().startswith("last-modified:"):
+                            new_meta["Last-Modified"] = header.split(":", 1)[1].strip()
+                        elif header.lower().startswith("etag:"):
+                            new_meta["Etag"] = header.split(":", 1)[1].strip()
+
+                    # Save metadata and the full response to cache
+                    meta_path, content_path = get_cache_paths(target)
+                    with open(meta_path, "w") as meta_file:
+                        json.dump(new_meta, meta_file)
+                    with open(content_path, "wb") as cache_file:
+                        cache_file.write(response_data)
+                    logger.info(f"Cached {target}")
+
+                # Send the cached/new response to the client
+                connection_socket.sendall(response_data)
 
             logger.info(
                 f"Proxied request: {target} with response code: {response_code}"
@@ -160,7 +170,7 @@ def handle_request(connection_socket: socket.socket):
         if remote_socket:
             try:
                 remote_socket.close()
-            except:
+            except Exception:
                 pass
 
 
@@ -183,6 +193,8 @@ def client_handler(connection_socket, addr, connection_semaphore):
 
 def run_server(port: int, concurrency_level: int):
     try:
+        os.makedirs(CACHE_DIR, exist_ok=True)
+
         connection_semaphore = threading.Semaphore(concurrency_level)
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
