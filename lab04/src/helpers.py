@@ -85,3 +85,13 @@ def get_cache_paths(url):
     meta_path = os.path.join(CACHE_DIR, f"{h}.meta")
     content_path = os.path.join(CACHE_DIR, f"{h}.cache")
     return meta_path, content_path
+
+
+def get_blacklist_entries():
+    blacklist = []
+    with open("blacklist.conf", "r") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                blacklist.append(line)
+    return blacklist

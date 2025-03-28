@@ -6,6 +6,7 @@ from const import BUF_SIZE, CACHE_DIR
 from helpers import (
     build_remote_request,
     extract_target_info,
+    get_blacklist_entries,
     get_cache_paths,
     parse_http_request,
 )
@@ -56,6 +57,22 @@ def handle_request(connection_socket: socket.socket):
             logger.warning(f"Invalid URL: {target}")
             connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
+
+        blacklist = get_blacklist_entries()
+        for blocked in blacklist:
+            if blocked.lower() in target.lower():
+                logger.warning(f"Blocked request: {target} is blacklisted")
+                block_response = (
+                    "HTTP/1.1 403 Forbidden\r\n"
+                    "Content-Type: text/html\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                    "<html><body><h1>Access Blocked</h1>"
+                    "<p>This page is blocked by the proxy server.</p>"
+                    "</body></html>"
+                )
+                connection_socket.sendall(block_response.encode())
+                return
 
         logger.info(f"Proxying {method} request to {hostname}:{port}{remote_path}")
 
