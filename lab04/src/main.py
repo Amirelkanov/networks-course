@@ -2,8 +2,13 @@ import socket
 import threading
 import argparse
 import logging
-from urllib.parse import urlparse
 from const import BUF_SIZE
+from helpers import (
+    build_remote_request,
+    extract_target_info,
+    parse_http_request,
+    relay_response,
+)
 
 
 def parse_arguments():
@@ -55,7 +60,10 @@ def init_logger(log_level, log_file):
 
 
 def handle_request(connection_socket: socket.socket):
+    remote_socket = None
+
     try:
+        # Read the complete request
         request_data = b""
         while True:
             chunk = connection_socket.recv(BUF_SIZE)
@@ -65,40 +73,28 @@ def handle_request(connection_socket: socket.socket):
 
             request_data += chunk
 
-            # Check if we received the end of headers
+            # Check if we've received the end of headers
             if b"\r\n\r\n" in request_data:
                 break
 
-        header_data, _, body = request_data.partition(b"\r\n\r\n")
-        header_lines = header_data.decode("utf-8", errors="replace").split("\r\n")
+        header_lines, method, path, version, body, content_length = parse_http_request(
+            request_data
+        )
 
-        if len(header_lines) < 1:
+        if not header_lines:
             logger.warning("Malformed request received")
             connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
 
-        # Parse the request line
-        request_line = header_lines[0]
-        parts = request_line.split()
-        if len(parts) != 3:
-            logger.warning(f"Malformed request line: {request_line}")
+        if not method:
+            logger.warning(f"Malformed request line")
             connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
 
-        method, path, version = parts
         logger.debug(f"Received {method} request for {path}")
+        logger.debug(f"Content-Length: {content_length}")
 
-        content_length = next(
-            (
-                int(h.split(":", 1)[1].strip())
-                for h in header_lines[1:]
-                if h.lower().startswith("content-length:")
-            ),
-            0,
-        )
-        logger.info(f"Content-Length: {content_length}")
-
-        # Read the rest of the body if needed
+        # Read the rest of the body if needed for POST requests
         while len(body) < content_length:
             chunk = connection_socket.recv(BUF_SIZE)
             if not chunk:
@@ -106,55 +102,18 @@ def handle_request(connection_socket: socket.socket):
                 break
             body += chunk
 
-        # Parse target URL (e.x. "/www.google.com")
-        target = path.lstrip("/")
-        if not (target.startswith("http://") or target.startswith("https://")):
-            target = "http://" + target
+        hostname, port, remote_path, target = extract_target_info(path)
 
-        parsed_url = urlparse(target)
-        hostname = parsed_url.hostname
         if not hostname:
             logger.warning(f"Invalid URL: {target}")
             connection_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
 
-        port = parsed_url.port if parsed_url.port else 80
-        remote_path = parsed_url.path if parsed_url.path else "/"
-        if parsed_url.query:
-            remote_path += "?" + parsed_url.query
-
         logger.info(f"Proxying {method} request to {hostname}:{port}{remote_path}")
 
-        # Reconstruct the request for the remote server
-        new_request_line = f"{method} {remote_path} {version}\r\n"
-        new_headers = []
-        host_header_present = False
-
-        for header in header_lines[1:]:
-            if ":" not in header:
-                continue
-
-            header_name, header_value = header.split(":", 1)
-            header_name, header_value = (
-                header_name.strip().lower(),
-                header_value.strip(),
-            )
-
-            if header_name in ["proxy-connection", "connection"]:
-                continue
-
-            if header_name == "host":
-                host_header_present = True
-                new_headers.append(f"Host: {hostname}")
-            else:
-                new_headers.append(f"{header_name.capitalize()}: {header_value}")
-
-        if not host_header_present:
-            new_headers.append(f"Host: {hostname}")
-        new_headers.append("Connection: close")
-
-        request_message = new_request_line + "\r\n".join(new_headers) + "\r\n\r\n"
-        final_request = request_message.encode() + body
+        final_request = build_remote_request(
+            method, remote_path, version, header_lines, hostname, body
+        )
 
         # Connect to the remote server and send the request
         try:
@@ -163,27 +122,7 @@ def handle_request(connection_socket: socket.socket):
             remote_socket.connect((hostname, port))
             remote_socket.sendall(final_request)
 
-            # Send the remote server's response back to the client
-            response_data = b""
-            response_code = "N/A"
-            headers_received = False
-
-            while True:
-                remote_data = remote_socket.recv(BUF_SIZE)
-                if not remote_data:
-                    break
-
-                response_data += remote_data
-                connection_socket.sendall(remote_data)
-
-                # Extract response code from the first line if not done yet
-                if not headers_received and b"\r\n" in response_data:
-                    headers_received = True
-                    response_line = response_data.split(b"\r\n")[0].decode(
-                        errors="ignore"
-                    )
-                    status_parts = response_line.split()
-                    response_code = status_parts[1] if len(status_parts) >= 2 else "N/A"
+            response_code = relay_response(remote_socket, connection_socket)
 
             logger.info(
                 f"Proxied request: {target} with response code: {response_code}"
@@ -207,11 +146,6 @@ def handle_request(connection_socket: socket.socket):
         except Exception as e:
             logger.error(f"Error connecting to remote server: {e}", exc_info=True)
             connection_socket.sendall(b"HTTP/1.1 502 Bad Gateway\r\n\r\nBad Gateway")
-        finally:
-            try:
-                remote_socket.close()
-            except:
-                pass
 
     except Exception as e:
         logger.error(f"Error in proxy handling: {e}", exc_info=True)
@@ -222,6 +156,12 @@ def handle_request(connection_socket: socket.socket):
             connection_socket.sendall(error_response.encode())
         except Exception:
             pass
+    finally:
+        if remote_socket:
+            try:
+                remote_socket.close()
+            except:
+                pass
 
 
 def client_handler(connection_socket, addr, connection_semaphore):
