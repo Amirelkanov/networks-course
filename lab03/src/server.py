@@ -143,16 +143,16 @@ def run_server(port: int, concurrency_level: int):
 
         while True:
             try:
-                connection_semaphore.acquire()
                 connection_socket, addr = server_socket.accept()
                 logger.info(f"[{addr[0]}:{addr[1]}] Connection established")
 
-                client_thread = threading.Thread(
-                    target=client_handler,
-                    args=(connection_socket, addr, connection_semaphore),
-                )
-                client_thread.daemon = True
-                client_thread.start()
+                if connection_semaphore.acquire():
+                    client_thread = threading.Thread(
+                        target=client_handler,
+                        args=(connection_socket, addr, connection_semaphore),
+                    )
+                    client_thread.daemon = True
+                    client_thread.start()
 
             except Exception as e:
                 logger.error(f"Error accepting connection: {e}", exc_info=True)
