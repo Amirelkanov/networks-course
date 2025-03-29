@@ -58,6 +58,9 @@ def process_input(mode):
         return input("Enter text message: ")
     elif mode == "FILE":
         filename = input("Enter filename: ")
+        if not (filename.endswith(".txt") or filename.endswith(".html")):
+            print("Error: Only .txt and .html files are supported in FILE mode.")
+            exit(1)
         if os.path.exists(filename):
             print(f"File {filename} has been found. Sending its content...")
             with open(filename, "r", encoding="utf-8") as file:
