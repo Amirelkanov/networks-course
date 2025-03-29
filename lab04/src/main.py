@@ -17,7 +17,7 @@ def handle_request(connection_socket: socket.socket):
     remote_socket = None
 
     try:
-        # Read the complete client request.
+        # Read the complete client request
         request_data = b""
         while True:
             chunk = connection_socket.recv(BUF_SIZE)

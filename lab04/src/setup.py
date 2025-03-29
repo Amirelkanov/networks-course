@@ -3,25 +3,25 @@ import logging
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Proxy Server for Lab04")
+    parser = argparse.ArgumentParser(description="proxy server for lab04")
     parser.add_argument(
-        "--server_port", type=int, default=8888, help="Port to listen on"
+        "--server_port", type=int, default=8888, help="port to listen on"
     )
     parser.add_argument(
         "--concurrency_level",
         type=int,
         default=1,
-        help="Maximum number of concurrent connections",
+        help="maximum number of concurrent connections",
     )
     parser.add_argument(
         "--log_level",
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Set the logging level",
+        help="set the logging level",
     )
     parser.add_argument(
-        "--log_file", type=str, default="proxy.log", help="Log file name"
+        "--log_file", type=str, default="proxy.log", help="log file name"
     )
     return parser.parse_args()
 

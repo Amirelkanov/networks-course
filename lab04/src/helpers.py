@@ -2,7 +2,7 @@ import hashlib
 import os
 from urllib.parse import urlparse
 
-from const import CACHE_DIR
+from const import BLACKLIST_PATH, CACHE_DIR
 
 
 def parse_http_request(request_data):
@@ -31,7 +31,7 @@ def parse_http_request(request_data):
     return header_lines, method, path, version, body, content_length
 
 
-# Extract target hostname, port and path from the request path.
+# Extract target hostname, port and path from the request path
 def extract_target_info(path):
     target = path.lstrip("/")
     if not (target.startswith("http://") or target.startswith("https://")):
@@ -87,9 +87,9 @@ def get_cache_paths(url):
     return meta_path, content_path
 
 
-def get_blacklist_entries():
+def get_blacklist_entries(blacklist_path=BLACKLIST_PATH):
     blacklist = []
-    with open("blacklist.conf", "r") as f:
+    with open(blacklist_path, "r") as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#"):

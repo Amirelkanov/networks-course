@@ -1,0 +1,24 @@
+2025-03-29 03:01:50 - INFO - Proxy server started on port 8888 with concurrency level 3
+2025-03-29 03:02:03 - INFO - [127.0.0.1:6395] Connection established
+2025-03-29 03:02:03 - INFO - [127.0.0.1:6395] Handling connection...
+2025-03-29 03:02:03 - INFO - Proxying GET request to gaia.cs.umass.edu:80/wireshark-labs/HTTP-wireshark-file1.html
+2025-03-29 03:02:05 - INFO - Cached https://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file1.html
+2025-03-29 03:02:05 - INFO - Proxied request: https://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file1.html with response code: 200
+2025-03-29 03:02:05 - INFO - [127.0.0.1:6395] Connection closed
+2025-03-29 03:02:40 - INFO - [127.0.0.1:7333] Connection established
+2025-03-29 03:02:40 - INFO - [127.0.0.1:7333] Handling connection...
+2025-03-29 03:02:40 - INFO - Proxying POST request to httpbun.org:80/post
+2025-03-29 03:02:42 - INFO - Proxied request: http://httpbun.org/post with response code: 200
+2025-03-29 03:02:42 - INFO - [127.0.0.1:7333] Connection closed
+2025-03-29 03:03:33 - INFO - [127.0.0.1:9465] Connection established
+2025-03-29 03:03:33 - INFO - [127.0.0.1:9465] Handling connection...
+2025-03-29 03:03:33 - INFO - Proxying GET request to gaia.cs.umass.edu:80/wireshark-labs/HTTP-wireshark-file1.html
+2025-03-29 03:03:35 - INFO - Serving https://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file1.html from cache (304 Not Modified)
+2025-03-29 03:03:35 - INFO - Proxied request: https://gaia.cs.umass.edu/wireshark-labs/HTTP-wireshark-file1.html with response code: 304
+2025-03-29 03:03:35 - INFO - [127.0.0.1:9465] Connection closed
+2025-03-29 03:05:14 - INFO - [127.0.0.1:12875] Connection established
+2025-03-29 03:05:14 - INFO - [127.0.0.1:12875] Handling connection...
+2025-03-29 03:05:14 - WARNING - Blocked request: https://spbu.ru/ is blacklisted
+2025-03-29 03:05:14 - INFO - [127.0.0.1:12875] Connection closed
+2025-03-29 03:06:05 - INFO - Server stopped by user: KeyboardInterrupt
+2025-03-29 03:06:05 - INFO - Server socket closed
