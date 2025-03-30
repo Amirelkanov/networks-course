@@ -4,6 +4,9 @@
 
 ### A. Почта и SMTP (7 баллов)
 
+### Пролог
+Если захотите проверить работу - отключите VPN, либо поменяйте smtp сервер на нужный.
+
 ### 1. Почтовый клиент (2 балла)
 Напишите программу для отправки электронной почты получателю, адрес
 которого задается параметром. Адрес отправителя может быть постоянным. Программа
@@ -11,10 +14,39 @@
 библиотеки для работы с почтой, т.е. в этом задании **не** предполагается общение с smtp
 сервером через сокеты напрямую.
 
-Приложите скриншоты полученных сообщений (для обоих форматов).
+```
+usage: 1.py [-h] [--sender_email SENDER_EMAIL] --sender_password SENDER_PASSWORD
+            [--receiver_email RECEIVER_EMAIL] [--mode {TEXT,FILE}] [--subject SUBJECT]
+            [--smtp_server SMTP_SERVER] [--smtp_port SMTP_PORT]
+
+simple python mail client for lab05A
+
+options:
+  -h, --help            show this help message and exit
+  --sender_email SENDER_EMAIL
+                        sender email address
+  --sender_password SENDER_PASSWORD
+                        sender password
+  --receiver_email RECEIVER_EMAIL
+                        receiver email address
+  --mode {TEXT,FILE}    set the mail mode. For FILE mode .txt and .html only supported.
+  --subject SUBJECT     email subject
+  --smtp_server SMTP_SERVER
+                        SMTP server address
+  --smtp_port SMTP_PORT
+                        SMTP server port
+```
 
 #### Демонстрация работы
-todo
+
+Отправка обычного текстового сообщения:
+![](images/a11.png)
+
+Отправка из файлов с `.txt` и `.html` расширениями:
+![](images/a12.png)
+
+![](images/a13.png)
+
 
 ### 2. SMTP-клиент (3 балла)
 Разработайте простой почтовый клиент, который отправляет текстовые сообщения
@@ -24,10 +56,71 @@ todo
 современных платформ. Вместо этого реализуйте свое решение на сокетах с передачей
 сообщений почтовому серверу.
 
-Сделайте скриншоты полученных сообщений.
+```
+usage: 23.py [-h] [--sender_email SENDER_EMAIL] --sender_password SENDER_PASSWORD
+             [--receiver_email RECEIVER_EMAIL] [--mode {TXT,IMG}] [--subject SUBJECT]
+             [--smtp_server SMTP_SERVER] [--smtp_port SMTP_PORT]
+
+Simple Python SMTP Client using sockets for lab05A
+
+options:
+  -h, --help            show this help message and exit
+  --sender_email SENDER_EMAIL
+                        Sender email address
+  --sender_password SENDER_PASSWORD
+                        Sender password
+  --receiver_email RECEIVER_EMAIL
+                        Receiver email address
+  --mode {TXT,IMG}      Set the mail mode
+  --subject SUBJECT     Email subject
+  --smtp_server SMTP_SERVER
+                        SMTP server address
+  --smtp_port SMTP_PORT
+                        SMTP server port
+```
 
 #### Демонстрация работы
-todo
+Я решил еще параллельно показывать общение сервера с клиентом напрямую в консоли (можно было вынести в лог файл, но для демонстрации, на мой взгляд, лишнее):
+
+```
+Enter text message: Нужно ли чистить яйцо ножом?
+Server: 220 smtp.mail.ru ESMTP ready (Looking for Mail for your domain? Visit https://biz.mail.ru)
+Client: EHLO localhost
+Server: 250-smtp.mail.ru
+250-SIZE 73400320
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 STARTTLS
+Client: STARTTLS
+Server: 220 2.0.0 Start TLS
+Client: EHLO localhost
+Server: 250-smtp.mail.ru
+250-SIZE 73400320
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 AUTH PLAIN LOGIN XOAUTH2
+Client: AUTH LOGIN
+Server: 334 VXNlcm5hbWU6
+Client: c3QwOTQ1NTlAc3R1ZGVudC5zcGJ1LnJ1
+Server: 334 UGFzc3dvcmQ6
+Client: RWxrQDIwMDQ=
+Server: 235 Authentication succeeded
+Client: MAIL FROM:<st094559@student.spbu.ru>
+Server: 250 OK
+Client: RCPT TO:<amirelkanov@yandex.ru>
+Server: 250 Accepted
+Client: DATA
+Server: 354 Enter message, ending with "." on a line by itself
+Client: Sending email content...
+Server: 250 OK id=1tyg4x-000000004Eo-1tqF
+Client: QUIT
+Server: 221 exim-smtp-7976bd5b5f-2l2wc closing connection
+Email sent successfully!
+```
+
+![](images/a21.png)
 
 ### 3. SMTP-клиент: бинарные данные (2 балла)
 Модифицируйте ваш SMTP-клиент из предыдущего задания так, чтобы теперь он мог
@@ -36,7 +129,47 @@ todo
 Сделайте скриншот, подтверждающий получение почтового сообщения с картинкой.
 
 #### Демонстрация работы
-todo
+
+```
+Enter image filename: C:\Users\AmEl\PycharmProjects\networks-course\lab05\src_a\data\image.jpg
+File C:\Users\AmEl\PycharmProjects\networks-course\lab05\src_a\data\image.jpg found. Sending its content...
+Server: 220 smtp.mail.ru ESMTP ready (Looking for Mail for your domain? Visit https://biz.mail.ru)
+Client: EHLO localhost
+Server: 250-smtp.mail.ru
+250-SIZE 73400320
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 STARTTLS
+Client: STARTTLS
+Server: 220 2.0.0 Start TLS
+Client: EHLO localhost
+Server: 250-smtp.mail.ru
+250-SIZE 73400320
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 AUTH PLAIN LOGIN XOAUTH2
+Client: AUTH LOGIN
+Server: 334 VXNlcm5hbWU6
+Client: c3QwOTQ1NTlAc3R1ZGVudC5zcGJ1LnJ1
+Server: 334 UGFzc3dvcmQ6
+Client: RWxrQDIwMDQ=
+Server: 235 Authentication succeeded
+Client: MAIL FROM:<st094559@student.spbu.ru>
+Server: 250 OK
+Client: RCPT TO:<amirelkanov@yandex.ru>
+Server: 250 Accepted
+Client: DATA
+Server: 354 Enter message, ending with "." on a line by itself
+Client: Sending email content...
+Server: 250 OK id=1tyg7x-00000000BGv-0oE5
+Client: QUIT
+Server: 221 exim-smtp-7976bd5b5f-dfs8l closing connection
+Email sent successfully!
+```
+
+![](images/a31.png)
 
 ---
 
