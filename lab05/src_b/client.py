@@ -26,7 +26,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def send_command(host, port, command, logger):
+def send_command(host, port, command):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
@@ -62,7 +62,7 @@ def send_command(host, port, command, logger):
         client_socket.close()
 
 
-def interactive_mode(host, port, logger):
+def interactive_mode(host, port):
     print(f"=== Remote Command Execution Client ===")
     print(f"Connected to {host}:{port}")
     print("Type 'exit' or 'quit' to terminate the session")
@@ -79,7 +79,7 @@ def interactive_mode(host, port, logger):
             if not command.strip():  # Skip empty commands
                 continue
 
-            result = send_command(host, port, command, logger)
+            result = send_command(host, port, command)
             print("\n=== Command Result ===")
             print(result)
 
@@ -103,9 +103,9 @@ if __name__ == "__main__":
     )
 
     if args.interactive:
-        interactive_mode(args.host, args.port, logger)
+        interactive_mode(args.host, args.port)
     elif args.command:
-        result = send_command(args.host, args.port, args.command, logger)
+        result = send_command(args.host, args.port, args.command)
         print(result)
     else:
         print(

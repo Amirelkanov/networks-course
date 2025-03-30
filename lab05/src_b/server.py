@@ -58,7 +58,7 @@ def execute_command(command):
         return f"Error executing command: {str(e)}"
 
 
-def handle_client(client_socket, addr, connection_semaphore, logger):
+def handle_client(client_socket, addr, connection_semaphore):
     try:
         logger.info(f"[{addr[0]}:{addr[1]}] Connection established")
 
@@ -82,7 +82,7 @@ def handle_client(client_socket, addr, connection_semaphore, logger):
         connection_semaphore.release()
 
 
-def run_server(port, concurrency_level, logger):
+def run_server(port, concurrency_level):
     try:
         connection_semaphore = threading.Semaphore(concurrency_level)
 
@@ -104,7 +104,7 @@ def run_server(port, concurrency_level, logger):
                 if connection_semaphore.acquire():
                     client_thread = threading.Thread(
                         target=handle_client,
-                        args=(client_socket, addr, connection_semaphore, logger),
+                        args=(client_socket, addr, connection_semaphore),
                     )
                     client_thread.daemon = True
                     client_thread.start()
@@ -134,4 +134,4 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    run_server(args.port, args.concurrency_level, logger)
+    run_server(args.port, args.concurrency_level)

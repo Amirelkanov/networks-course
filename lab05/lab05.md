@@ -189,7 +189,49 @@ Paint (на стороне сервера). Или запустить консо
 сервере) отправляется обратно клиенту.
 
 #### Демонстрация работы
-todo
+Help для сервера неинтересен, покажу для клиента:
+```
+usage: client.py [-h] [--host HOST] [--port PORT] [--command COMMAND] [--interactive]
+                 [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+
+Remote Command Execution Client
+
+options:
+  -h, --help            show this help message and exit
+  --host HOST           Server hostname or IP address
+  --port PORT           Server port
+  --command COMMAND     Command to execute on the server
+  --interactive         Run in interactive mode
+  --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        Set the logging level
+```
+
+![](images/b11.png)
+
+И когда закрыл блокнот:
+```
+2025-03-30 22:46:38 - INFO - Connecting to localhost:12345
+2025-03-30 22:46:38 - INFO - Sending command: notepad     
+Command: notepad
+Return Code: 0  
+```
+
+Тем временем сервер:
+```
+Running with arguments: Namespace(port=12345, concurrency_level=5, log_level='INFO')
+2025-03-30 22:44:49 - INFO - Server started on port 12345 with concurrency level 5
+2025-03-30 22:44:49 - INFO - Waiting for incoming connections...
+2025-03-30 22:46:05 - INFO - [127.0.0.1:55976] Connection established
+2025-03-30 22:46:05 - INFO - [127.0.0.1:55976] Received command: ping yandex.ru
+2025-03-30 22:46:08 - INFO - [127.0.0.1:55976] Command executed and result sent
+2025-03-30 22:46:08 - INFO - [127.0.0.1:55976] Connection closed
+2025-03-30 22:46:38 - INFO - [127.0.0.1:56367] Connection established
+2025-03-30 22:46:38 - INFO - [127.0.0.1:56367] Received command: notepad
+2025-03-30 22:46:55 - INFO - [127.0.0.1:56367] Command executed and result sent
+2025-03-30 22:46:55 - INFO - [127.0.0.1:56367] Connection closed
+```
+
+Там еще есть интерактивный мод, чтобы поиграться. В целях краткости демонстрации, я просто команды отправил.
 
 ### В. Широковещательная рассылка через UDP (2 балла)
 Реализуйте сервер (веб-службу) и клиента с использованием интерфейса Socket API, которая:
@@ -198,7 +240,25 @@ todo
 - клиент службы выводит на консоль сообщаемое ему время
 
 #### Демонстрация работы
-todo
+Признаюсь, есть костыль... Почему-то на винде, когда я на клиенте слушаю все интерфейсы, я получаю два одинаковых сообщения, и в целом, на stackoverflow это и объясняют:
+```
+By binding to all your IP addresses, you'll be getting local loopback and via the network as well.
+```
+
+В целом, в это я верю, но почему на linux'е такого не наблюдается (может, это как-то связано с нечестным linux в виде wsl)? Интересно... Ну ладно: сам костыль заключается в том, что я трекаю последнее сообщение, и если новое не совпадает с последним, я его вывожу.
+
+Видно, что клиенты, запущенные в разное время, стабильно все показывают:
+
+![](images/c11.png)
+
+Ну, сервер говорит следующее:
+```
+2025-03-30 22:38:36 - INFO - UDP Time Broadcasting Server started
+2025-03-30 22:38:36 - INFO - Time format: %Y-%m-%d %H:%M:%S
+2025-03-30 22:38:36 - INFO - Press Ctrl+C to stop the server
+2025-03-30 22:39:12 - INFO - Server stopped by user: KeyboardInterrupt
+2025-03-30 22:39:12 - INFO - Server socket closed
+```
 
 ## Задачи
 
