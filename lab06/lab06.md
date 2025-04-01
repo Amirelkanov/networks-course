@@ -93,6 +93,23 @@
 #### Демонстрация работы
 Я написал FTP-клиент на сокетах. Буду проверять на [ftp-сервере для тестирования](https://dlptest.com/ftp-test/).
 
+Зайдем на сам сервер:
+
+```
+Enter FTP server address: ftp.dlptest.com
+Enter username (default: anonymous): dlpuser
+Enter password (default: anonymous@): rNrKYTX9g7z3RgJRmxWuGHbeu
+220 Welcome to the DLP Test FTP Server
+
+Client: USER dlpuser
+Server: 331 Please specify the password.
+Client: PASS ***
+Server: 230 Login successful.
+
+Available commands: list, download, upload, quit (or CTRL+C)
+...
+```
+
 Выведем изначальный список директорий и файлов:
 
 ```
