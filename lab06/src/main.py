@@ -1,3 +1,4 @@
+from getpass import getpass
 from ftp import FTPClient
 
 
@@ -6,7 +7,7 @@ def cmd_mode():
         try:
             host = input("Enter FTP server address: ").strip()
             user = input("Enter username (default: anonymous): ").strip()
-            passwd = input("Enter password (default: anonymous@): ").strip()
+            passwd = getpass("Enter password (default: anonymous@): ").strip()
 
             ftp = FTPClient(host, user=user, passwd=passwd)
             ftp.connect()

@@ -93,12 +93,12 @@
 #### Демонстрация работы
 Я написал FTP-клиент на сокетах. Буду проверять на [ftp-сервере для тестирования](https://dlptest.com/ftp-test/).
 
-Зайдем на сам сервер:
+Зайдем на сам сервер _(пароль специально в консоли не показывается при вводе, так что не пугайтесь)_:
 
 ```
 Enter FTP server address: ftp.dlptest.com
 Enter username (default: anonymous): dlpuser
-Enter password (default: anonymous@): rNrKYTX9g7z3RgJRmxWuGHbeu
+Enter password (default: anonymous@):
 220 Welcome to the DLP Test FTP Server
 
 Client: USER dlpuser
