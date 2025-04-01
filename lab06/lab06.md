@@ -91,7 +91,158 @@
 Бонус: Не используйте готовые библиотеки для работы с FTP (например, ftplib для Python), а реализуйте решение на сокетах **(+3 балла)**.
 
 #### Демонстрация работы
-todo
+Я написал FTP-клиент на сокетах. Буду проверять на [ftp-сервере для тестирования](https://dlptest.com/ftp-test/).
+
+Выведем изначальный список директорий и файлов:
+
+```
+Enter command: list
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,123).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,123).
+
+Client: LIST
+Server: 150 Here comes the directory listing.
+Directory listing:
+-rw-r--r--    1 1001     1001       135964 Apr 01 18:00 10.101.1.2_20250401-13593855_IVA.jpg
+-rw-r--r--    1 1001     1001       127656 Apr 01 18:00 10.101.1.2_20250401-13594092_IVA.jpg
+-rw-r--r--    1 1001     1001       140316 Apr 01 18:00 10.101.1.2_20250401-13594553_IVA.jpg
+-rw-r--r--    1 1001     1001       125474 Apr 01 18:00 10.101.1.2_20250401-13594734_IVA.jpg
+-rw-r--r--    1 1001     1001       123144 Apr 01 18:00 10.101.1.2_20250401-13595591_IVA.jpg
+-rw-r--r--    1 1001     1001       122904 Apr 01 18:00 10.101.1.2_20250401-13595891_IVA.jpg
+-rw-r--r--    1 1001     1001       120229 Apr 01 18:00 10.101.1.2_20250401-14000134_IVA.jpg
+-rw-r--r--    1 1001     1001       144216 Apr 01 18:00 10.101.1.2_20250401-14000313_IVA.jpg
+-rw-r--r--    1 1001     1001       138837 Apr 01 18:00 10.101.1.2_20250401-14000493_IVA.jpg
+-rw-r--r--    1 1001     1001       122142 Apr 01 18:00 10.101.1.2_20250401-14001072_IVA.jpg
+-rw-r--r--    1 1001     1001       130720 Apr 01 18:00 10.101.1.2_20250401-14001232_IVA.jpg
+-rw-r--r--    1 1001     1001       136940 Apr 01 18:00 10.101.1.2_20250401-14013394_IVA.jpg
+-rw-r--r--    1 1001     1001       139664 Apr 01 18:00 10.101.1.2_20250401-14013575_IVA.jpg
+-rw-r--r--    1 1001     1001       134302 Apr 01 18:01 10.101.1.2_20250401-14014355_IVA.jpg
+-rw-r--r--    1 1001     1001       138697 Apr 01 18:01 10.101.1.2_20250401-14014814_IVA.jpg
+-rw-r--r--    1 1001     1001       138026 Apr 01 18:01 10.101.1.2_20250401-14014935_IVA.jpg
+-rw-r--r--    1 1001     1001       127970 Apr 01 18:01 10.101.1.2_20250401-14015555_IVA.jpg
+-rw-r--r--    1 1001     1001       119048 Apr 01 18:01 10.101.1.2_20250401-14020117_IVA.jpg
+-rw-r--r--    1 1001     1001       138720 Apr 01 18:01 10.101.1.2_20250401-14020475_IVA.jpg
+-rw-r--r--    1 1001     1001       139459 Apr 01 18:01 10.101.1.2_20250401-14020976_IVA.jpg
+-rw-r--r--    1 1001     1001       133812 Apr 01 18:01 10.101.1.2_20250401-14021636_IVA.jpg
+-rw-r--r--    1 1001     1001            0 Apr 01 18:01 10.101.1.2_20250401-14021935_IVA.jpg
+-rw-r--r--    1 1001     1001     10485760 Apr 01 18:00 10mb.txt
+-rw-r--r--    1 1001     1001      2417467 Apr 01 18:01 1_9270815244133824443_17-9ULspeedtest.upt
+-rw-r--r--    1 1001     1001            0 Apr 01 18:00 20250401_180000_traffic_log.tar.gz
+-rw-r--r--    1 1001     1001          260 Apr 01 18:01 HeartbeatData_b3b7_20250401234500.csv
+-rw-r--r--    1 1001     1001          265 Apr 01 18:01 HeartbeatData_d3fb_20250401234500.csv
+-rw-r--r--    1 1001     1001          262 Apr 01 18:00 HeartbeatData_d4fd_20250401234500.csv
+-rw-r--r--    1 1001     1001          134 Apr 01 18:00 PY_THUYDIENSONGHINH_20250402_010000.txt
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11473792
+-rw-r--r--    1 1001     1001        10000 Apr 01 18:00 _11477656
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11477664
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478018
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478020
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478083
+
+226 Directory send OK.
+```
+
+Загрузим туда текстовый файл:
+```
+Enter command: upload
+Enter local filename to upload: C:\Users\AmEl\PycharmProjects\networks-course\lab06\src\data\1.txt
+Enter remote filename to save as: halo.txt
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,12).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,12).
+
+Client: STOR halo.txt
+Server: 150 Ok to send data.
+Upload complete. Remote file saved as: halo.txt
+226 Transfer complete.
+```
+
+Загрузим туда картинку:
+```
+Enter command: upload
+Enter local filename to upload: C:\Users\AmEl\PycharmProjects\networks-course\lab06\src\data\test_ftp_img.jpg
+Enter remote filename to save as: halo.jpg
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,111).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,111).
+
+Client: STOR halo.jpg
+Server: 150 Ok to send data.
+Upload complete. Remote file saved as: halo.jpg
+226 Transfer complete.
+```
+
+Посмотрим на текущий list:
+```
+Enter command: list
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,63).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,63).
+
+Client: LIST
+Server: 150 Here comes the directory listing.
+Directory listing:
+-rw-r--r--    1 1001     1001       135964 Apr 01 18:00 10.101.1.2_20250401-13593855_IVA.jpg
+...
+-rw-r--r--    1 1001     1001        70176 Apr 01 18:03 10.101.1.2_20250401-14035124_IVA.jpg
+-rw-r--r--    1 1001     1001     10485760 Apr 01 18:02 10mb.txt
+-rw-r--r--    1 1001     1001     33103184 Apr 01 18:01 1_9270815244133824443_17-9ULspeedtest.upt
+-rw-r--r--    1 1001     1001            0 Apr 01 18:00 20250401_180000_traffic_log.tar.gz
+-rw-r--r--    1 1001     1001      1048576 Apr 01 18:02 FTP_UPLOAD_FILE_E4_4E_2D_CF_01_A0.txt
+-rw-r--r--    1 1001     1001          260 Apr 01 18:01 HeartbeatData_b3b7_20250401234500.csv
+-rw-r--r--    1 1001     1001          265 Apr 01 18:01 HeartbeatData_d3fb_20250401234500.csv
+-rw-r--r--    1 1001     1001          262 Apr 01 18:00 HeartbeatData_d4fd_20250401234500.csv
+-rw-r--r--    1 1001     1001          134 Apr 01 18:00 PY_THUYDIENSONGHINH_20250402_010000.txt
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11473792
+-rw-r--r--    1 1001     1001        10000 Apr 01 18:00 _11477656
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11477664
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478018
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478020
+-rw-r--r--    1 1001     1001       100000 Apr 01 18:00 _11478083
+-rw-r--r--    1 1001     1001       194757 Apr 01 18:02 halo.jpg
+-rw-r--r--    1 1001     1001            9 Apr 01 18:02 halo.txt
+```
+
+Видим, что наши файлы загрузились. Теперь попробуем скачать их обратно:
+
+```
+Enter command: download
+Enter remote filename to download: halo.txt
+Enter local filename to save as: yoooo.txt
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,78).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,78).
+
+Client: RETR halo.txt
+Server: 150 Opening BINARY mode data connection for halo.txt (9 bytes).
+Download complete. Local file saved as: yoooo.txt
+226 Transfer complete.
+```
+
+```
+Enter command: download
+Enter remote filename to download: halo.jpg
+Enter local filename to save as: yooo.jpg
+Client: PASV
+Server: 227 Entering Passive Mode (44,241,66,173,4,87).
+PASV response: 227 Entering Passive Mode (44,241,66,173,4,87).
+
+Client: RETR halo.jpg
+Server: 150 Opening BINARY mode data connection for halo.jpg (194757 bytes).
+Download complete. Local file saved as: yooo.jpg
+226 Transfer complete.
+```
+
+Видим, что скачались они без каких-либо корраптов:
+![](images/173.png)
+
+Ну и выходим из клиента:
+```
+Enter command: quit
+Client: QUIT
+Server: 221 Goodbye.
+```
 
 ### GUI FTP клиент (4 балла)
 Реализуйте приложение FTP клиента с графическим интерфейсом. НЕ используйте C#.

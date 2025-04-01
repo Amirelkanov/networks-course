@@ -1,0 +1,2 @@
+BUF_SIZE = 4096
+FTP_PORT = 21
