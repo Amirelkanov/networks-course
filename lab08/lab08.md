@@ -20,7 +20,7 @@
 
 <img src="images/rdt.png" width=700 />
 
-### А. Общие требования (5 баллов)
+### А. Общие требования (5 баллов) - DONE
 - В качестве базового протокола используйте UDP. Поддержите имитацию 30% потери
   пакетов. Потеря может происходить в обоих направлениях (от клиента серверу и от
   сервера клиенту).
@@ -33,23 +33,126 @@
 
 Приложите скриншоты, подтверждающие работоспособность программы.
 
-#### Демонстрация работы
-todo
-
-### Б. Дуплексная передача (2 балла)
+### Б. Дуплексная передача (2 балла) - DONE
 Поддержите возможность пересылки данных в обоих направлениях: как от клиента к серверу, так и
 наоборот. 
 
 Продемонстрируйте передачу файла от сервера клиенту.
 
-#### Демонстрация работы
-todo
-
-### В. Контрольные суммы (1 балл)
+### В. Контрольные суммы (1 балл) - DONE
 UDP реализует механизм контрольных сумм при передаче данных. Однако предположим, что
 этого нет. Реализуйте и интегрируйте в протокол свой способ проверки корректности данных
 на прикладном уровне (для этого вы можете использовать результаты из следующего задания
 «Контрольные суммы»).
+
+Я реализовал Stop-and-wait протокол, основанный на RDT 3.0 DFA:
+*  В `packet.py` лежит класс, описывающий посылаемый пакет. Структура пакета донельзя проста:
+   * Header, состоящий из 6 байтов:
+     * seqnum (1 байт, т.к. нам хватит 0 и 1)
+     * fin flag (1 байт)
+     * checksum (4 байта) _(сумма контрольная считается zlib'ой, чтобы не нагромождать реализацию. Лучше я в след. задании это сделаю, и по-человечески протестирую)_
+   * Data (в байтах, естественно)
+* В `receiver.py` описан автомат со стороны читателя
+* В `sender.py` описан автомат со стороны отправителя
+* В `unreliable_chan` описан тот самый ненадежный канал с общей схемы _(теряет пакеты по умолчанию с вероятностью 30%)_:
+ ![](images/rdt_full_scheme.png)
+* Ну и сам `main.py`, где можно играться с сервером и клиентом:
+```
+usage: main.py [-h] {server,client} ...
+
+Stop-and-Wait Protocol
+
+positional arguments:
+  {server,client}
+    server         Run as server
+    client         Run as client
+```
+
+```
+usage: main.py server [-h] --port PORT --outfile OUTFILE [--loss LOSS]
+
+options:
+  -h, --help         show this help message and exit
+  --port PORT        Port to listen on
+  --outfile OUTFILE  Path to save received file
+  --loss LOSS        Loss probability [0.0-1.0]
+```
+
+```
+usage: main.py client [-h] --port PORT --file FILE [--server-ip SERVER_IP] [--chunk-size CHUNK_SIZE]
+                      [--timeout TIMEOUT] [--loss LOSS]
+
+options:
+  -h, --help            show this help message and exit
+  --port PORT           Server port
+  --file FILE           File to send
+  --server-ip SERVER_IP
+                        Server IP address
+  --chunk-size CHUNK_SIZE
+                        Chunk size in bytes
+  --timeout TIMEOUT     Timeout in seconds
+  --loss LOSS           Loss probability [0.0-1.0]
+```
+
+Давайте для демонстрации пошлем небольшую картинку. Пусть будет свекла. Почему бы и нет.
+
+Сервер:
+```
+PS C:\Users\AmEl\PycharmProjects\networks-course\lab08> python src/main.py server --port=12345 --outfile 
+C:\Users\AmEl\PycharmProjects\networks-course\lab08\src\received.jpg
+[Receiver] Waiting for data...
+[Receiver] Received seq 0, delivered, sent ACK
+[Receiver] Received seq 1, delivered, sent ACK
+[Receiver] Received seq 0, delivered, sent ACK
+[Channel] Packet to ('127.0.0.1', 57972) lost
+[Receiver] Received seq 1, delivered, sent ACK
+[Receiver] Packet corrupted or out-of-order, resent ACK seq 1
+[Channel] Packet to ('127.0.0.1', 57972) lost
+[Receiver] Received seq 0, delivered, sent ACK
+[Receiver] Packet corrupted or out-of-order, resent ACK seq 0
+[Receiver] Received seq 1, delivered, sent ACK
+[Receiver] Received seq 0, delivered, sent ACK
+[Receiver] Received seq 1, delivered, sent ACK
+[Receiver] Received FIN, closing connection
+[Receiver] File saved to C:\Users\AmEl\PycharmProjects\networks-course\lab08\src\received.jpg
+```
+
+Клиент:
+```
+PS C:\Users\AmEl\PycharmProjects\networks-course\lab08> python src/main.py client --server-ip=localhost --port=12345 --file=C:\Users\AmEl\PycharmProjects\networks-course\lab08\example_img.jpg
+[Sender] Sending chunk seq 0, size 1024 bytes
+[Sender] Sending chunk seq 1, size 1024 bytes
+[Sender] Sending chunk seq 0, size 1024 bytes
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Sender] Sending chunk seq 1, size 1024 bytes
+[Sender] Timeout waiting for ACK seq 1, retransmitting
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 1, retransmitting
+[Sender] Sending chunk seq 0, size 1024 bytes
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Sender] Sending chunk seq 1, size 1024 bytes
+[Sender] Sending chunk seq 0, size 1024 bytes
+[Channel] Packet to ('localhost', 12345) lost
+[Sender] Timeout waiting for ACK seq 0, retransmitting
+[Sender] Sending chunk seq 1, size 915 bytes
+[Sender] Sending FIN
+[Sender] File transfer complete
+```
+
+Картинка дошла в целости и сохранности:
+```python
+>>> print(open("example_img.jpg", "rb").read() == open("received.jpg", "rb").read())
+True
+```
 
 ## Контрольные суммы (2 балла)
 Методы, основанные на использовании контрольных сумм, обрабатывают $d$ разрядов данных как
