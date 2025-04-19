@@ -30,7 +30,7 @@
    контрольной суммы, порядкового номера и идентификатора?
    - `Type: 8 (Echo (ping) request)`, `Code: 0`
    - `Checksum`, `Identifier (BE / LE)`, `Sequence Number (BE / LE)` _(`BE` - big endian / `LE` - little endian; видимо, wireshark выводит данные в разных порядках для лучшей читабельности)_, `Data`
-   - 6 байт
+   - 6 байт (по 2 байта на каждое поле)
    - ![](images/11.png)
 4. Рассмотрите соответствующий ping-пакет, полученный в ответ на предыдущий. 
    Каковы ICMP-тип и кодовый номер этого пакета? Какие еще поля есть в этом ICMP-пакете? 
@@ -82,14 +82,55 @@ Traceroute отсылает первый пакет со значением TTL 
 Напишите консольное приложение, которое выведет IP-адрес вашего компьютера и маску сети на консоль.
 
 #### Демонстрация работы
-todo
+Перед началом нужно установить `pip install netifaces`
+Добавил еще возможность глядеть по всем интерфейсам, а не только дефолтный:
+
+```
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py -h
+usage: Get IP address and netmask in following format: 
+<interface>     IP: <ip> Netmask: <mask> [-h] [-a]     
+
+options:
+  -h, --help            show this help message and exit
+  -a, --all-interfaces  show for all interfaces        
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py
+eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py -a
+lo      IP: 127.0.0.1  Netmask: 255.0.0.0
+eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
+```
 
 ### 2. Доступные порты (2 балла)
 Выведите все доступные (свободные) порты в указанном диапазоне для заданного IP-адреса. 
 IP-адрес и диапазон портов должны передаваться в виде входных параметров.
 
 #### Демонстрация работы
-todo
+```
+usage: portscan.py [-h] [--host HOST] [-s START] [-e END] [-t TIMEOUT]
+
+TCP port scanner
+
+options:
+  -h, --help            show this help message and exit
+  --host HOST           Target hostname or IP address
+  -s START, --start START
+                        First port to scan (inclusive)
+  -e END, --end END     Last port to scan (exclusive)
+  -t TIMEOUT, --timeout TIMEOUT
+                        Connection timeout in seconds
+```
+
+Когда есть порты:
+```
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/portscan.py --host=cpp-cactus-25.ru -s=10000 -e=1002020 open ports on cpp-cactus-25.ru in range [10000, 10020) were found:
+10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019 
+```
+
+Когда нет портов:
+```
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/portscan.py -s=10000 -e=10020
+All ports in range [10000, 10020) are closed on 127.0.0.1
+```
 
 ### 3. Широковещательная рассылка для подсчета копий приложения (6 баллов)
 Разработать приложение, подсчитывающее количество копий себя, запущенных в локальной сети.
