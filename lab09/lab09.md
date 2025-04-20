@@ -92,9 +92,15 @@ usage: Get IP address and netmask in following format:
 
 options:
   -h, --help            show this help message and exit
-  -a, --all-interfaces  show for all interfaces        
+  -a, --all-interfaces  show for all interfaces
+```
+
+```        
 amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py
 eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
+```
+
+```
 amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py -a
 lo      IP: 127.0.0.1  Netmask: 255.0.0.0
 eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
