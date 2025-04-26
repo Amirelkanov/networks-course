@@ -92,9 +92,15 @@ usage: Get IP address and netmask in following format:
 
 options:
   -h, --help            show this help message and exit
-  -a, --all-interfaces  show for all interfaces        
+  -a, --all-interfaces  show for all interfaces
+```
+
+```        
 amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py
 eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
+```
+
+```
 amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/my_ip.py -a
 lo      IP: 127.0.0.1  Netmask: 255.0.0.0
 eth0    IP: 172.21.216.156  Netmask: 255.255.240.0
@@ -122,7 +128,8 @@ options:
 
 Когда есть порты:
 ```
-amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/portscan.py --host=cpp-cactus-25.ru -s=10000 -e=1002020 open ports on cpp-cactus-25.ru in range [10000, 10020) were found:
+amir@DESKTOP-V9NBEAG:/mnt/c/Users/AmEl/PycharmProjects/networks-course/lab09$ python3 src/portscan.py --host=cpp-cactus-25.ru -s=10000 -e=10020
+20 open ports on cpp-cactus-25.ru in range [10000, 10020) were found:
 10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019 
 ```
 
