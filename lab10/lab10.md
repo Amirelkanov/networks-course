@@ -117,24 +117,65 @@ Windows) или UDP-сегмент (в случае с Unix).
 В этой работе необходимо будет разобраться с тем, как организовать проверку контрольных сумм
 и создание заголовков для ICMP пакетов.
 
-### Задание А (6 баллов)
+### Пролог
+Я написал утилиту Ping, которая отправляет ICMP-запросы _(4 по умолчанию)_, получает ответы и вычисляет статистики, связанные с RTT и пакетами.
+В целом, можно в процессе запросов можно прерваться и выведется накопившаяся статистика.
+Короче, пытался сделать как в Unix'е:
+
+```
+usage: ping.py [-h] [-c COUNT] [-t TIMEOUT] host
+
+Ping utility for lab10
+
+positional arguments:
+  host                  Host to ping
+
+options:
+  -h, --help            show this help message and exit
+  -c COUNT, --count COUNT
+                        Number of requests to send
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout in seconds
+```
+
+### Задание А (6 баллов) - DONE
 Реализуйте приложение для эхо-запросов (пингования) с помощью ICMP-запросов и ответов.
 
 Сделайте скриншоты результатов пингования **двух различных** хостов назначения, находящихся
 **на разных континентах**.
 
-#### Демонстрация работы
-todo
-
-### Задание Б (1 балл)
+### Задание Б (1 балл) - DONE
 Организуйте вывод на консоль так, как это сделано в стандартной утилите ping: нужно вывести
 минимальное, максимальное и среднее значение RTT в конце каждого ответа от сервера.
 Дополнительно вычислите коэффициент потери пакетов (в процентах).
 
-#### Демонстрация работы
-todo
+Хост назначения: `akamai.com`, Швеция:
+```
+PING akamai.com (23.216.134.145) 8 bytes of data.
+36 bytes from 23.216.134.145: icmp_seq=1 ttl=56 time=18.559 ms
+36 bytes from 23.216.134.145: icmp_seq=2 ttl=56 time=16.361 ms
+36 bytes from 23.216.134.145: icmp_seq=3 ttl=56 time=15.555 ms
+36 bytes from 23.216.134.145: icmp_seq=4 ttl=56 time=16.682 ms
 
-### Задание В (1 балл)
+--- akamai.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss   
+rtt min/avg/max/mdev = 15.555/16.789/18.559/1.271 ms
+```
+
+Хост назначения: `stanford.edu`, США:
+```
+PING stanford.edu (171.67.215.200) 8 bytes of data.
+36 bytes from 171.67.215.200: icmp_seq=1 ttl=241 time=178.860 ms
+36 bytes from 171.67.215.200: icmp_seq=2 ttl=241 time=177.287 ms
+36 bytes from 171.67.215.200: icmp_seq=3 ttl=241 time=177.562 ms
+36 bytes from 171.67.215.200: icmp_seq=4 ttl=241 time=177.473 ms
+
+--- stanford.edu ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss
+rtt min/avg/max/mdev = 177.287/177.796/178.860/0.719 ms
+```
+
+### Задание В (1 балл) - DONE
 Ваша программа обрабатывает только тайм-ауты в получении ICMP-ответов. Добавьте к ней
 функционал анализа кодов ошибок протокола ICMP и вывод соответствующих результатов для
 пользователя. Примерами кодов ошибок ICMP являются: 0 – сеть назначения недоступна, 1 – хост
@@ -143,7 +184,17 @@ todo
 Приложите скриншот вывода одной из ошибок.
 
 #### Демонстрация работы
-todo
+```
+PING 192.168.0.228 (192.168.0.228) 8 bytes of data.
+Request timeout for icmp_seq 1
+64 bytes from 192.168.0.127: Host unreachable
+Request timeout for icmp_seq 3
+64 bytes from 192.168.0.127: Host unreachable
+
+--- 192.168.0.228 ping statistics ---
+4 packets transmitted, 0 received, 100% packet loss
+No packets received
+```
 
 ### Справочная информация о протоколе ICMP
 
