@@ -75,7 +75,34 @@ todo
 TCP с обязательным использованием протокола IPv6 на сетевом уровне.
 
 #### Демонстрация работы
-todo
+```
+usage: echov6.py [-h] {server,client} ...
+
+Echo server/client using IPv6
+
+positional arguments:
+  {server,client}  Role: server or client
+    server         Start the echo server
+    client         Start the echo client
+
+options:
+  -h, --help       show this help message and exit
+```
+
+Сервер:
+```
+> python src/echov6.py server
+Server started on [::]:12345 (IPv6). Waiting for connections...
+Client connected ('::1', 64254, 0, 0)
+Received: hello
+Client ('::1', 64254, 0, 0) disconnected
+```
+
+Клиент
+```
+> python src/echov6.py client hello
+Response from server: HELLO
+```
 
 ## Удаленное рисование (6 баллов)
 Программа удаленного рисования. На первом компьютере (клиент) пользователь может рисовать
@@ -84,4 +111,8 @@ todo
 приложения. Предоставьте скриншот работы приложения.
 
 #### Демонстрация работы
-todo
+Вдохновение брал с OneNote. Настолько плавнейших линий у меня не получится, как там, но тоже неплохо. Я добавил ластик на "E", чтобы было чуть удобнее. Ну еще не запутаешься: для ластика и рисования разные курсоры _(опять же, как в OneNote'е)_
+
+На сей раз никаких параметров в программу не добавлял _(если очень хочется, всегда можно посмотреть const.py)_, акцент на рисовании же.
+Допустим, глазик нарисуем:
+![](images/eye.png)
