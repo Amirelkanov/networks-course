@@ -83,7 +83,7 @@ sudo apt-get update
 sudo apt-get install docker-compose-plugin
 ```
 
-Установим панель 3-XU на сервер.
+Установим панель 3-XU на сервер:
 * Зайдем в рут-пользователя: `su -`
 * Склонируем соответствующий репозиторий: `git clone https://github.com/MHSanaei/3x-ui.git`
 * Зайдем в создавшуюся директорию и поднимем докер: `cd 3x-ui && docker compose up -d`
@@ -111,5 +111,5 @@ sudo apt-get install docker-compose-plugin
 * Добавим клиента с email `vpn_lab_test`
 ![](images/connection_n_client.png)
 
-Ок, теперь приступим к настройке клиентского приложения. NekoBox'ом я с осени пользуюсь, удобная штука. Ну, кися в коробке работает исправно:
+Ок, теперь настроим клиентское приложение. NekoBox'ом я с осени пользуюсь, удобная штука. Ну, кися в коробке работает исправно:
 ![](images/nekobox.png)
