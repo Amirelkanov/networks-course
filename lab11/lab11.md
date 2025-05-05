@@ -89,6 +89,27 @@ options:
   -h, --help       show this help message and exit
 ```
 
+```
+usage: echov6.py server [-h] [--host HOST] [--port PORT]
+
+options:
+  -h, --help   show this help message and exit
+  --host HOST  IPv6 address of the server
+  --port PORT  TCP port to listen on
+```
+
+```
+usage: echov6.py client [-h] [--host HOST] [--port PORT] message
+
+positional arguments:
+  message      Text message to send
+
+options:
+  -h, --help   show this help message and exit
+  --host HOST  IPv6 address of the server to connect to
+  --port PORT  TCP port of the server to connect to
+```
+
 Сервер:
 ```
 > python src/echov6.py server
