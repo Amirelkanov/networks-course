@@ -94,7 +94,7 @@ def traceroute(host: str, max_hops: int, probes: int, timeout: float):
             except socket.herror:
                 display_host = display_addr
             print(
-                f"{sprint_host_with_address(display_host, display_addr)}",
+                sprint_host_with_address(display_host, display_addr),
                 end="\n",
                 flush=True,
             )
