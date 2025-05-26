@@ -20,17 +20,56 @@
 должно настраиваться параметром и по каждому из пакетов должно выводиться время RTT (по
 умолчанию утилита tracert использует три пакета).
 
-#### Демонстрация работы
-todo
-
 ### Задание Б. Вывод имен промежуточных узлов (2 балла)
 В настоящее время приложение выводит только список IP-адресов всех маршрутизаторов на пути
 от источника к хосту назначения. Попробуйте использовать метод (например, gethostbyname) для
 получения имени каждого промежуточного узла маршрута и выводить также на консоль это имя.
 Предоставьте скриншот результатов трассировки какого-либо хоста.
 
+#### Пролог
+Ну, tracert написан. Пытался приблизиться к оригиналу по виду. Вот `--help` программы:
+
+```
+usage: main.py [-h] [-m MAX_HOPS] [-p PROBES] [-w WAIT] host
+
+tracert using ICMP echo requests
+
+positional arguments:
+  host                  Destination host to trace route to
+
+options:
+  -h, --help            show this help message and exit
+  -m MAX_HOPS, --max-hops MAX_HOPS
+                        Max hops (max TTL to be reached)
+  -p PROBES, --probes PROBES
+                        Number of probes per hop
+  -w WAIT, --wait WAIT  Timeout to wait for each reply (in seconds)
+```
+
 #### Демонстрация работы
-todo
+```
+> python .\src_tracert\main.py stanford.edu
+Tracing route to stanford.edu [171.67.215.200] 
+over a maximum of 30 hops with 3 probes each:
+
+  1       2 ms    1 ms    1 ms  192.168.0.1
+  2      11 ms    4 ms    3 ms  5.3.25.80
+  3       4 ms    5 ms    3 ms  5.3.25.81
+  4      14 ms   16 ms   13 ms  msk-ix.ertelecom.ru [195.208.209.132]
+  5          *   31 ms       *  mskix.he.net [195.208.210.40]
+  6      35 ms       *       *  port-channel4.core3.sto1.he.net [184.104.192.81]
+  7      42 ms   44 ms       *  port-channel5.core3.cph1.he.net [72.52.92.128]
+  8     117 ms  121 ms  117 ms  port-channel4.core2.ewr5.he.net [184.104.189.25]
+  9          *  120 ms  119 ms  port-channel24.core3.nyc4.he.net [184.104.188.252]
+ 10     181 ms       *       *  port-channel9.core3.sjc2.he.net [184.104.199.21]
+ 11          *       *       *  Request timed out.
+ 12     179 ms  182 ms  180 ms  stanford-university.e0-62.core2.pao1.he.net [184.105.177.238]
+ 13     179 ms  178 ms  178 ms  campus-ial-nets-a-vl1002.SUNet [171.64.255.196]
+ 14          *       *       *  Request timed out.
+ 15     181 ms  180 ms  181 ms  web.stanford.edu [171.67.215.200]
+
+Trace complete.
+```
 
 ## Дистанционно-векторная маршрутизация (8 баллов)
 Реализуйте распределенный алгоритм дистанционно-векторной маршрутизации для сети,
