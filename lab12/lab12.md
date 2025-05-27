@@ -322,13 +322,34 @@ UDP, а также выводит количество потерянных па
 
 Ваше приложение должно иметь GUI.
 
+### Пролог
+Аргументы:
+
+```
+usage: main.py [-h] --mode {client,server} --protocol {Protocol.TCP,Protocol.UDP}
+
+Network: measuring speed and loss over TCP/UDP
+
+options:
+  -h, --help            show this help message and exit
+  --mode {client,server}
+                        mode: client/server
+  --protocol {Protocol.TCP,Protocol.UDP}
+                        protocol: tcp/udp
+```
+
+Возможно, немного запутывает enum в протоколе, поэтому вот пример запуска TCP-клиента:
+`python main.py --mode client --protocol tcp`
+
+Я пытался вытащить максимум точности, но, даже прокидывая время в наносекундах, все равно есть случаи (и это происходит при маленьком количестве пакетов), когда start и end time совпадают. Поэтому я решил оставить `time.time()` и прокидывать ошибку с предложением увеличить количество пакетов. Я думаю, так чище и логичнее.
+
 ### 1. Измерение по протоколу TCP (3 балла)
 Пример интерфейса:
 
 <img src="images/tcp.png" width=700 />
 
 #### Демонстрация работы
-todo
+![](images/speedtest_tcp.png)
 
 ### 2. Измерение по протоколу UDP (3 балла)
 Пример интерфейса:
@@ -336,7 +357,7 @@ todo
 <img src="images/udp.png" width=700 />
 
 #### Демонстрация работы
-todo
+![](images/speedtest_udp.png)
    
 
 ## Транслятор портов (6 баллов)

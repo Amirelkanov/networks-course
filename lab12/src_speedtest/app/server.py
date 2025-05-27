@@ -1,6 +1,7 @@
 import socket
 import struct
 import threading
+import time
 import tkinter as tk
 from tkinter import ttk
 from app.app_base import AppBase
@@ -93,7 +94,7 @@ class Server(AppBase):
             received_seq.add(seq)
             if ts_start is None:
                 ts_start = ts
-            ts_end = ts
+        ts_end = time.time()
         conn.close()
         srv.close()
 
@@ -124,11 +125,12 @@ class Server(AppBase):
             received_seq.add(seq)
             if ts_start is None:
                 ts_start = ts
-            ts_end = ts
 
             # If all packets are received, we can exit early
             if len(received_seq) >= expected_total:
                 break
+        ts_end = time.time()
+
         sock.close()
 
         self.display_stats(received_seq, ts_start, ts_end, total_bytes, expected_total)
@@ -144,8 +146,7 @@ class Server(AppBase):
                 "Попробуйте увеличить количество отправляемых пакетов."
             )
 
-        duration_ns = (ts_end - ts_start) if len(received_seq) > 1 else 1
-        duration = duration_ns / 1e9
+        duration = (ts_end - ts_start) if len(received_seq) > 1 else 1
         speed = total_bytes / duration
 
         self.status_var.set(

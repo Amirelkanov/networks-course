@@ -81,7 +81,7 @@ class Client(AppBase):
         total_bytes = 0
         for seq in range(total_count):
             payload = os.urandom(PAYLOAD_SIZE)
-            ts = time.time_ns()
+            ts = time.time()
             packet = make_packet(total_count, seq, ts, payload)
             sock.sendall(packet)
             total_bytes += len(payload)
@@ -94,7 +94,7 @@ class Client(AppBase):
         total_bytes = 0
         for seq in range(total_count):
             payload = os.urandom(PAYLOAD_SIZE)
-            ts = time.time_ns()
+            ts = time.time()
             packet = make_packet(total_count, seq, ts, payload)
             sock.sendto(packet, (ip, port))
             total_bytes += len(payload)
