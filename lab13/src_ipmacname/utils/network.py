@@ -18,12 +18,6 @@ def scan_network(
     progress_callback,
     result_callback,
 ):
-    """
-    Scans the network ip/netmask.
-    progress_callback(done, total) — to update the ProgressBar.
-    result_callback(ip, mac, name) — to add a row to the table.
-    """
-
     network = ipaddress.IPv4Network(f"{ip}/{netmask}", strict=False)
     hosts = list(network.hosts())
     done, total = 0, len(hosts)
