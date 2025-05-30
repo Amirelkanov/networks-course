@@ -11,7 +11,7 @@ class NetworkScannerApp(tk.Tk):
         super().__init__()
 
         self.title("Find all computers in network")
-        self.geometry("600x400")
+        self.geometry("650x400")
 
         self.local_ip = None
 
